@@ -23,7 +23,7 @@ namespace SlideClasterizationTest1
         private List<Byte[]> ProcesedImagesPixelBuffer;
         private List<int> ProcesedImagesStride;
 
-        public List<PixelCluster> Clusters;
+        public List<List<PixelCluster>> Clusters;
 
         public ImageClusterizer()
         {
@@ -31,7 +31,7 @@ namespace SlideClasterizationTest1
             ProcesedImagesPixelBuffer = new List<byte[]>();
             ProcesedImagesStride = new List<int>();
             AverageColor = new Color();
-            Clusters = new List<PixelCluster>();
+            Clusters = new List<List<PixelCluster>>();
         }
 
         public ImageClusterizer(string pathToImage)
@@ -40,7 +40,7 @@ namespace SlideClasterizationTest1
             ProcesedImagesPixelBuffer = new List<byte[]>();
             ProcesedImagesStride = new List<int>();
 
-            Clusters = new List<PixelCluster>();
+            Clusters = new List<List<PixelCluster>>();
 
             OriginalImage = new Bitmap(pathToImage);
            
@@ -69,7 +69,7 @@ namespace SlideClasterizationTest1
             ProcesedImagesPixelBuffer = new List<byte[]>();
             ProcesedImagesStride = new List<int>();
 
-            Clusters = new List<PixelCluster>();
+            Clusters = new List<List<PixelCluster>>();
 
             OriginalImage = originalImage;
            
@@ -101,9 +101,39 @@ namespace SlideClasterizationTest1
         {
             if(OriginalImage != null)
             {
-                for (int i = 3; i < Math.Min(OriginalImage.Width, OriginalImage.Height) / 4.0; i = (int)(i * 1.4))
+                for (int i = 2; i < Math.Min(OriginalImage.Width, OriginalImage.Height) / 3.0; i = (int)(i*1.3 + 1))
                 {
                     CompressImage(i, GetTheFurthestColor);
+                }
+            }
+        }
+
+        public async Task GenerateClustersAsync()
+        {
+            await Task.Factory.StartNew(() => GenerateClusters());
+        }
+
+        public void GenerateClusters()
+        {
+            if (ProcesedImages.Count != 0)
+            {
+                for (int i = 0; i < ProcesedImages.Count; i++)
+                {
+                    Clusters.Add(new List<PixelCluster>());
+
+                    bool[][] map = PixelCluster.CreatMap(ProcesedImagesPixelBuffer[i], ProcesedImagesStride[i], BackgroundColor);
+
+                    for (int j = 0; j < map.Length; j++)
+                    {
+                        for (int k = 0; k < map[0].Length; k++)
+                        {
+                            if (map[j][k] == true)
+                            {
+                                Clusters[i].Add(new PixelCluster(map));
+                                Clusters[i].Last().CreateCluster(j, k);
+                            }
+                        }
+                    }
                 }
             }
         }

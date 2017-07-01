@@ -25,8 +25,16 @@ namespace SlideClasterizationTest1
         private async void buttonAddImage_Click(object sender, EventArgs e)
         {
             await AddImage();
-            pictureBox1.Image = Images[CurentImage].OriginalImage;
-            pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
+
+            pictureBox1.Image = Images.Last().OriginalImage;
+            pictureBox2.Image = Images.Last().ProcesedImages[CurentProcessedImage];
+
+            chart1.Series[0].Points.Clear();
+            for (int i = 0; i < Images[CurentImage].Clusters.Count; i++)
+            {
+                chart1.Series[0].Points.AddXY(i, Images[CurentImage].Clusters[i].Count);
+            }
+            chart1.Update();
         }
 
         private async Task AddImage()
@@ -40,6 +48,7 @@ namespace SlideClasterizationTest1
                 ImageClusterizer NewImage = new ImageClusterizer(openFileDialog1.FileName);
                 await NewImage.GenerateImagesAsync();
                 Images.Add(NewImage);
+                await NewImage.GenerateClustersAsync();
             }
         }
 
@@ -84,6 +93,13 @@ namespace SlideClasterizationTest1
                 CurentImage++;
                 pictureBox1.Image = Images[CurentImage].OriginalImage;
 
+                chart1.Series[0].Points.Clear();
+                for (int i = 0; i < Images[CurentImage].Clusters.Count; i++)
+                {
+                    chart1.Series[0].Points.AddXY(i, Images[CurentImage].Clusters[i].Count);
+                }
+                chart1.Update();
+
                 if (Images[CurentImage].ProcesedImages.Count != 0 && CurentProcessedImage < Images[CurentImage].ProcesedImages.Count)
                 {
                     pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
@@ -98,6 +114,13 @@ namespace SlideClasterizationTest1
             {
                 CurentImage = 0;
                 pictureBox1.Image = Images[CurentImage].OriginalImage;
+
+                chart1.Series[0].Points.Clear();
+                for (int i = 0; i < Images[CurentImage].Clusters.Count; i++)
+                {
+                    chart1.Series[0].Points.AddXY(i, Images[CurentImage].Clusters[i].Count);
+                }
+                chart1.Update();
 
                 if (Images[CurentImage].ProcesedImages.Count != 0 && CurentProcessedImage < Images[CurentImage].ProcesedImages.Count)
                 {
@@ -118,6 +141,13 @@ namespace SlideClasterizationTest1
                 CurentImage--;
                 pictureBox1.Image = Images[CurentImage].OriginalImage;
 
+                chart1.Series[0].Points.Clear();
+                for (int i = 0; i < Images[CurentImage].Clusters.Count; i++)
+                {
+                    chart1.Series[0].Points.AddXY(i, Images[CurentImage].Clusters[i].Count);
+                }
+                chart1.Update();
+
                 if (Images[CurentImage].ProcesedImages.Count != 0 && CurentProcessedImage < Images[CurentImage].ProcesedImages.Count)
                 {
                     pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
@@ -133,6 +163,13 @@ namespace SlideClasterizationTest1
                 CurentImage = Images.Count - 1;
                 pictureBox1.Image = Images[CurentImage].OriginalImage;
 
+                chart1.Series[0].Points.Clear();
+                for (int i = 0; i < Images[CurentImage].Clusters.Count; i++)
+                {
+                    chart1.Series[0].Points.AddXY(i, Images[CurentImage].Clusters[i].Count);
+                }
+                chart1.Update();
+
                 if (Images[CurentImage].ProcesedImages.Count != 0 && CurentProcessedImage < Images[CurentImage].ProcesedImages.Count)
                 {
                     pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
@@ -144,5 +181,6 @@ namespace SlideClasterizationTest1
                 }
             }
         }
+        
     }
 }

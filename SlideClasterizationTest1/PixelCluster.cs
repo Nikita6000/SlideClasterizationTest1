@@ -38,38 +38,80 @@ namespace SlideClasterizationTest1
             Map = map;
         }
 
-        // recursive function to create a cluster by moving one pixel at a time on the Map
+        // function to create a cluster by moving one pixel at a time on the Map
         public void CreateCluster(int xStart, int yStart)
         {
-            if(Map[xStart][yStart])
+            List<Point> Junctions = new List<Point>();
+
+            bool IsThereAnywhereToGo = true;
+            int CurentX = xStart, CurentY = yStart;
+
+            while(IsThereAnywhereToGo)
             {
-                ByteCoordinates.Add((yStart * Map.Length + xStart) * 4);
-                Map[xStart][yStart] = false;
-
-                if (xStart > 0 && Map[xStart - 1][yStart])
+                if (ByteCoordinates.Contains((CurentY * Map.Length + CurentX) * 4) == false)
                 {
-                    CreateCluster(xStart - 1, yStart);
+                    ByteCoordinates.Add((yStart * Map.Length + xStart) * 4);
+                    Size++;
                 }
 
-                if (yStart > 0 && Map[xStart][yStart - 1])
+                Map[CurentX][CurentY] = false;
+
+                if (CurentX > 0 && Map[CurentX - 1][CurentY]) 
                 {
-                    CreateCluster(xStart, yStart - 1);
+                    if ((CurentY > 0 && Map[CurentX][CurentY - 1]) ||
+                       (CurentY < Map[0].Length - 1 && Map[CurentX][CurentY + 1]) ||
+                       (CurentX < Map.Length - 1 && Map[CurentX + 1][CurentY]))
+                        Junctions.Add(new Point(CurentX, CurentY));
+
+                    CurentX--;
+                    continue;
                 }
 
-                if (xStart < Map.Length - 1 && Map[xStart + 1][yStart])
+                if (CurentX < Map.Length - 1 && Map[CurentX + 1][CurentY])
                 {
-                    CreateCluster(xStart + 1, yStart);
+                    if ((CurentY > 0 && Map[CurentX][CurentY - 1]) ||
+                       (CurentY < Map[0].Length - 1 && Map[CurentX][CurentY + 1]) ||
+                       (CurentX > 0 && Map[CurentX - 1][CurentY]))
+                        Junctions.Add(new Point(CurentX, CurentY));
+
+                    CurentX++;
+                    continue;
                 }
 
-                if (yStart < Map[0].Length - 1 && Map[xStart][yStart + 1])
+                if (CurentY > 0 && Map[CurentX][CurentY - 1])
                 {
-                    CreateCluster(xStart, yStart + 1);
+                    if ((CurentX > 0 && Map[CurentX - 1][CurentY]) ||
+                       (CurentY < Map[0].Length - 1 && Map[CurentX][CurentY + 1]) ||
+                       (CurentX < Map.Length - 1 && Map[CurentX + 1][CurentY]))
+                        Junctions.Add(new Point(CurentX, CurentY));
+
+                    CurentY--;
+                    continue;
                 }
+
+                if (CurentY < Map[0].Length - 1 && Map[CurentX][CurentY + 1])
+                {
+                    if ((CurentY > 0 && Map[CurentX][CurentY - 1]) ||
+                       (CurentX < Map.Length - 1 && Map[CurentX + 1][CurentY]) ||
+                       (CurentX > 0 && Map[CurentX - 1][CurentY]))
+                        Junctions.Add(new Point(CurentX, CurentY));
+
+                    CurentY++;
+                    continue;
+                }
+
+                if (Junctions.Count > 0)
+                {
+                    CurentX = Junctions.First().X;
+                    CurentY = Junctions.First().Y;
+                    Junctions.RemoveAt(0);
+                }
+                else IsThereAnywhereToGo = false;
             }
         }
 
         // creates a map of pixels, which show where we can (true) or can't (false) go
-        static bool[][] CreatMap(byte[] PixelBuffer, int Stride, Color BackgroundColor)
+        public static bool[][] CreatMap(byte[] PixelBuffer, int Stride, Color BackgroundColor)
         {
             bool[][] Map = new bool[Stride / 4][];
 
@@ -101,7 +143,7 @@ namespace SlideClasterizationTest1
             return ((A.A - B.A) * (A.A - B.A) +
                     (A.R - B.R) * (A.R - B.R) +
                     (A.G - B.G) * (A.G - B.G) +
-                    (A.B - B.B) * (A.B - B.B) == 0);
+                    (A.B - B.B) * (A.B - B.B) < ColorSimilarityMargin);
         }
     }
 }
