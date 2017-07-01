@@ -26,7 +26,7 @@ namespace SlideClasterizationTest1
         {
             await AddImage();
             pictureBox1.Image = Images[CurentImage].OriginalImage;
-            pictureBox2.Image = Images[CurentImage].Procesedimages[CurentProcessedImage];
+            pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
         }
 
         private async Task AddImage()
@@ -45,34 +45,34 @@ namespace SlideClasterizationTest1
 
         private void buttonNextProcessedImage_Click(object sender, EventArgs e)
         {
-            if (Images.Count != 0 && Images[CurentImage].Procesedimages.Count != 0)
+            if (Images.Count != 0 && Images[CurentImage].ProcesedImages.Count != 0)
             {
-                if(CurentProcessedImage + 1 != Images[CurentImage].Procesedimages.Count)
+                if(CurentProcessedImage + 1 != Images[CurentImage].ProcesedImages.Count)
                 {
                     CurentProcessedImage++;
-                    pictureBox2.Image = Images[CurentImage].Procesedimages[CurentProcessedImage];
+                    pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
                 }
                 else
                 {
                     CurentProcessedImage = 0;
-                    pictureBox2.Image = Images[CurentImage].Procesedimages[CurentProcessedImage];
+                    pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
                 }
             }
         }
         
         private void buttonPreviousProcessedImage_Click(object sender, EventArgs e)
         {
-            if (Images.Count != 0 && Images[CurentImage].Procesedimages.Count != 0)
+            if (Images.Count != 0 && Images[CurentImage].ProcesedImages.Count != 0)
             {
                 if (CurentProcessedImage != 0)
                 {
                     CurentProcessedImage--;
-                    pictureBox2.Image = Images[CurentImage].Procesedimages[CurentProcessedImage];
+                    pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
                 }
                 else
                 {
-                    CurentProcessedImage = Images[CurentImage].Procesedimages.Count - 1;
-                    pictureBox2.Image = Images[CurentImage].Procesedimages[CurentProcessedImage];
+                    CurentProcessedImage = Images[CurentImage].ProcesedImages.Count - 1;
+                    pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
                 }
             }
         }
@@ -84,14 +84,14 @@ namespace SlideClasterizationTest1
                 CurentImage++;
                 pictureBox1.Image = Images[CurentImage].OriginalImage;
 
-                if (Images[CurentImage].Procesedimages.Count != 0 && CurentProcessedImage < Images[CurentImage].Procesedimages.Count)
+                if (Images[CurentImage].ProcesedImages.Count != 0 && CurentProcessedImage < Images[CurentImage].ProcesedImages.Count)
                 {
-                    pictureBox2.Image = Images[CurentImage].Procesedimages[CurentProcessedImage];
+                    pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
                 }
-                else if (Images[CurentImage].Procesedimages.Count != 0)
+                else if (Images[CurentImage].ProcesedImages.Count != 0)
                 {
                     CurentProcessedImage = 0;
-                    pictureBox2.Image = Images[CurentImage].Procesedimages[CurentProcessedImage];
+                    pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
                 }
             }
             else if (Images.Count != 0 && CurentImage == Images.Count - 1)
@@ -99,14 +99,14 @@ namespace SlideClasterizationTest1
                 CurentImage = 0;
                 pictureBox1.Image = Images[CurentImage].OriginalImage;
 
-                if (Images[CurentImage].Procesedimages.Count != 0 && CurentProcessedImage < Images[CurentImage].Procesedimages.Count)
+                if (Images[CurentImage].ProcesedImages.Count != 0 && CurentProcessedImage < Images[CurentImage].ProcesedImages.Count)
                 {
-                    pictureBox2.Image = Images[CurentImage].Procesedimages[CurentProcessedImage];
+                    pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
                 }
-                else if (Images[CurentImage].Procesedimages.Count != 0)
+                else if (Images[CurentImage].ProcesedImages.Count != 0)
                 {
                     CurentProcessedImage = 0;
-                    pictureBox2.Image = Images[CurentImage].Procesedimages[CurentProcessedImage];
+                    pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
                 }
             }
         }
@@ -118,14 +118,14 @@ namespace SlideClasterizationTest1
                 CurentImage--;
                 pictureBox1.Image = Images[CurentImage].OriginalImage;
 
-                if (Images[CurentImage].Procesedimages.Count != 0 && CurentProcessedImage < Images[CurentImage].Procesedimages.Count)
+                if (Images[CurentImage].ProcesedImages.Count != 0 && CurentProcessedImage < Images[CurentImage].ProcesedImages.Count)
                 {
-                    pictureBox2.Image = Images[CurentImage].Procesedimages[CurentProcessedImage];
+                    pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
                 }
-                else if (Images[CurentImage].Procesedimages.Count != 0)
+                else if (Images[CurentImage].ProcesedImages.Count != 0)
                 {
                     CurentProcessedImage = 0;
-                    pictureBox2.Image = Images[CurentImage].Procesedimages[CurentProcessedImage];
+                    pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
                 }
             }
             else if (Images.Count != 0 && CurentImage == 0)
@@ -133,14 +133,14 @@ namespace SlideClasterizationTest1
                 CurentImage = Images.Count - 1;
                 pictureBox1.Image = Images[CurentImage].OriginalImage;
 
-                if (Images[CurentImage].Procesedimages.Count != 0 && CurentProcessedImage < Images[CurentImage].Procesedimages.Count)
+                if (Images[CurentImage].ProcesedImages.Count != 0 && CurentProcessedImage < Images[CurentImage].ProcesedImages.Count)
                 {
-                    pictureBox2.Image = Images[CurentImage].Procesedimages[CurentProcessedImage];
+                    pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
                 }
-                else if (Images[CurentImage].Procesedimages.Count != 0)
+                else if (Images[CurentImage].ProcesedImages.Count != 0)
                 {
                     CurentProcessedImage = 0;
-                    pictureBox2.Image = Images[CurentImage].Procesedimages[CurentProcessedImage];
+                    pictureBox2.Image = Images[CurentImage].ProcesedImages[CurentProcessedImage];
                 }
             }
         }

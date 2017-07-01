@@ -12,27 +12,54 @@ namespace SlideClasterizationTest1
     public class ImageClusterizer
     {
         public Bitmap OriginalImage { get; set; }
+
+        private byte[] OriginalImagePixelBuffer;
+        private int OriginalImageStride;
+
         private float ImageProportions;
         bool IsWidthLonger;
         Color AverageColor;
         Color BackgroundColor;
 
-        public List<Bitmap> Procesedimages { get; set; } 
+        public List<Bitmap> ProcesedImages { get; set; }
+        private List<Byte[]> ProcesedImagesPixelBuffer;
+        private List<int> ProcesedImagesStride;
 
         public ImageClusterizer()
         {
-            Procesedimages = new List<Bitmap>();
+            ProcesedImages = new List<Bitmap>();
+            ProcesedImagesPixelBuffer = new List<byte[]>();
+            ProcesedImagesStride = new List<int>();
             AverageColor = new Color();
         }
 
         public ImageClusterizer(string pathToImage)
         {
-            Procesedimages = new List<Bitmap>();
+            ProcesedImages = new List<Bitmap>();
+            ProcesedImagesPixelBuffer = new List<byte[]>();
+            ProcesedImagesStride = new List<int>();
+
             OriginalImage = new Bitmap(pathToImage);
             ImageProportions = (float)Math.Max(OriginalImage.Width, OriginalImage.Height) / (float)Math.Min(OriginalImage.Width, OriginalImage.Height);
 
             AverageColor = GetAverageColor(OriginalImage);
             BackgroundColor = GetMostCommonColor(OriginalImage);
+
+            System.Drawing.Imaging.BitmapData OriginalImageData =
+                       OriginalImage.LockBits(new Rectangle(0, 0,
+                       OriginalImage.Width, OriginalImage.Height),
+                       System.Drawing.Imaging.ImageLockMode.ReadOnly,
+                       System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            OriginalImagePixelBuffer = new byte[OriginalImageData.Stride * OriginalImageData.Height];
+
+            System.Runtime.InteropServices.Marshal.Copy(OriginalImageData.Scan0, OriginalImagePixelBuffer, 0,
+                                                        OriginalImagePixelBuffer.Length);
+
+            OriginalImageStride = OriginalImageData.Stride;
+
+            OriginalImage.UnlockBits(OriginalImageData);
+
 
             if (OriginalImage.Width > OriginalImage.Height)
             {
@@ -46,13 +73,30 @@ namespace SlideClasterizationTest1
 
         public ImageClusterizer(Bitmap originalImage)
         {
-            Procesedimages = new List<Bitmap>();
+            ProcesedImages = new List<Bitmap>();
+            ProcesedImagesPixelBuffer = new List<byte[]>();
+            ProcesedImagesStride = new List<int>();
+
             OriginalImage = originalImage;
             ImageProportions = (float)Math.Max(OriginalImage.Width, OriginalImage.Height) / (float)Math.Min(OriginalImage.Width, OriginalImage.Height);
 
             AverageColor = GetAverageColor(OriginalImage);
             BackgroundColor = GetMostCommonColor(OriginalImage);
 
+            System.Drawing.Imaging.BitmapData OriginalImageData =
+                       OriginalImage.LockBits(new Rectangle(0, 0,
+                       OriginalImage.Width, OriginalImage.Height),
+                       System.Drawing.Imaging.ImageLockMode.ReadOnly,
+                       System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            OriginalImagePixelBuffer = new byte[OriginalImageData.Stride * OriginalImageData.Height];
+
+            System.Runtime.InteropServices.Marshal.Copy(OriginalImageData.Scan0, OriginalImagePixelBuffer, 0,
+                                                        OriginalImagePixelBuffer.Length);
+
+            OriginalImageStride = OriginalImageData.Stride;
+
+            OriginalImage.UnlockBits(OriginalImageData);
         }
 
         public async Task GenerateImagesAsync()
@@ -66,7 +110,7 @@ namespace SlideClasterizationTest1
             {
                 for (int i = 3; i < Math.Min(OriginalImage.Width, OriginalImage.Height) / 4.0; i = (int)(i * 1.4))
                 {
-                    Procesedimages.Add(new Bitmap(ResizeImage(CompressImage(i, GetTheFurthestColor), new Size(OriginalImage.Width, OriginalImage.Height))));
+                    CompressImage(i, GetTheFurthestColor);
                 }
             }
         }
@@ -84,7 +128,7 @@ namespace SlideClasterizationTest1
         }
 
         // fast filter on lockbits
-        private Bitmap CompressImage(int PixelsOnShorterEdge, PixelCalculationDelegate CalculateColor)
+        private void CompressImage(int PixelsOnShorterEdge, PixelCalculationDelegate CalculateColor)
         {
             Bitmap NewImage;
             
@@ -93,13 +137,7 @@ namespace SlideClasterizationTest1
             else
                 NewImage = new Bitmap((int)(((float)OriginalImage.Width / (float)OriginalImage.Height) * PixelsOnShorterEdge + 0.5f), PixelsOnShorterEdge);
 
-
-            System.Drawing.Imaging.BitmapData OriginalImageData =
-                       OriginalImage.LockBits(new Rectangle(0, 0,
-                       OriginalImage.Width, OriginalImage.Height),
-                       System.Drawing.Imaging.ImageLockMode.ReadOnly,
-                       System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
+            
             System.Drawing.Imaging.BitmapData NewImageData =
                        NewImage.LockBits(new Rectangle(0, 0,
                        NewImage.Width, NewImage.Height),
@@ -107,15 +145,8 @@ namespace SlideClasterizationTest1
                        System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             
 
-            byte[] OriginalImagePixelBuffer = new byte[OriginalImageData.Stride * OriginalImageData.Height]; 
             byte[] NewImagePixelBuffer = new byte[NewImageData.Stride * NewImageData.Height];
-
-            System.Runtime.InteropServices.Marshal.Copy(OriginalImageData.Scan0, OriginalImagePixelBuffer, 0,
-                                                        OriginalImagePixelBuffer.Length);
-
-            OriginalImage.UnlockBits(OriginalImageData);
             
-
             int filterOffset = (int)(((float)Math.Min(OriginalImage.Height, OriginalImage.Width) / (float)PixelsOnShorterEdge) / 2.0 + 0.5f);
             int calcOffset = 0;
             int OriginalImageByteOffset = 0;
@@ -129,7 +160,7 @@ namespace SlideClasterizationTest1
                 for (int offsetX = filterOffset; offsetX < OriginalImage.Width - 2 * filterOffset + 1; offsetX += 2 * filterOffset + 1)
                 {
                     // find a byte where "the center" of calculated pixel will be
-                    OriginalImageByteOffset = offsetY * OriginalImageData.Stride + offsetX * 4;
+                    OriginalImageByteOffset = offsetY * OriginalImageStride + offsetX * 4;
 
                     neighbourPixels.Clear();
 
@@ -139,7 +170,7 @@ namespace SlideClasterizationTest1
                         for (int filterX = -filterOffset; filterX <= filterOffset; filterX++)
                         {
                             // find needed pixel in array of bytes
-                            calcOffset = (offsetX + filterX) * 4 + (offsetY + filterY) * OriginalImageData.Stride;
+                            calcOffset = (offsetX + filterX) * 4 + (offsetY + filterY) * OriginalImageStride;
 
                             // save its value in neighbourPixels list
                             neighbourPixels.Add(Color.FromArgb(OriginalImagePixelBuffer[calcOffset + 3],
@@ -169,7 +200,10 @@ namespace SlideClasterizationTest1
             
             NewImage.UnlockBits(NewImageData);
 
-            return NewImage;
+            // save procesed image
+            ProcesedImages.Add(new Bitmap(ResizeImage(NewImage, new Size(OriginalImage.Width, OriginalImage.Height))));
+            ProcesedImagesPixelBuffer.Add(NewImagePixelBuffer);
+            ProcesedImagesStride.Add(NewImageData.Stride);
         }
 
         private static Color GetTheFurthestColor(List<Color> neighbourPixels, Color ReferenceColor)
