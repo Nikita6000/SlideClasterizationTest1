@@ -15,9 +15,7 @@ namespace SlideClasterizationTest1
 
         private byte[] OriginalImagePixelBuffer;
         private int OriginalImageStride;
-
-        private float ImageProportions;
-        bool IsWidthLonger;
+        
         Color AverageColor;
         Color BackgroundColor;
 
@@ -25,12 +23,15 @@ namespace SlideClasterizationTest1
         private List<Byte[]> ProcesedImagesPixelBuffer;
         private List<int> ProcesedImagesStride;
 
+        public List<PixelCluster> Clusters;
+
         public ImageClusterizer()
         {
             ProcesedImages = new List<Bitmap>();
             ProcesedImagesPixelBuffer = new List<byte[]>();
             ProcesedImagesStride = new List<int>();
             AverageColor = new Color();
+            Clusters = new List<PixelCluster>();
         }
 
         public ImageClusterizer(string pathToImage)
@@ -39,9 +40,10 @@ namespace SlideClasterizationTest1
             ProcesedImagesPixelBuffer = new List<byte[]>();
             ProcesedImagesStride = new List<int>();
 
-            OriginalImage = new Bitmap(pathToImage);
-            ImageProportions = (float)Math.Max(OriginalImage.Width, OriginalImage.Height) / (float)Math.Min(OriginalImage.Width, OriginalImage.Height);
+            Clusters = new List<PixelCluster>();
 
+            OriginalImage = new Bitmap(pathToImage);
+           
             AverageColor = GetAverageColor(OriginalImage);
             BackgroundColor = GetMostCommonColor(OriginalImage);
 
@@ -59,16 +61,6 @@ namespace SlideClasterizationTest1
             OriginalImageStride = OriginalImageData.Stride;
 
             OriginalImage.UnlockBits(OriginalImageData);
-
-
-            if (OriginalImage.Width > OriginalImage.Height)
-            {
-                IsWidthLonger = true;
-            }
-            else
-            {
-                IsWidthLonger = false;
-            }
         }
 
         public ImageClusterizer(Bitmap originalImage)
@@ -77,9 +69,10 @@ namespace SlideClasterizationTest1
             ProcesedImagesPixelBuffer = new List<byte[]>();
             ProcesedImagesStride = new List<int>();
 
-            OriginalImage = originalImage;
-            ImageProportions = (float)Math.Max(OriginalImage.Width, OriginalImage.Height) / (float)Math.Min(OriginalImage.Width, OriginalImage.Height);
+            Clusters = new List<PixelCluster>();
 
+            OriginalImage = originalImage;
+           
             AverageColor = GetAverageColor(OriginalImage);
             BackgroundColor = GetMostCommonColor(OriginalImage);
 
